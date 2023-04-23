@@ -51,9 +51,15 @@ class Handler(BaseHTTPRequestHandler):
             'truncation_length': int(body.get('truncation_length', 2048)),
             'ban_eos_token': bool(body.get('ban_eos_token', False)),
             'skip_special_tokens': bool(body.get('skip_special_tokens', True)),
-            'custom_stopping_strings': '',  # leave this blank
+            'custom_stopping_strings': '',  # converted few lines lower
             'stopping_strings': body.get('stopping_strings', []),
         }
+
+        if 'custom_stopping_strings' in body:
+            generate_params['custom_stopping_strings'] = ", ".join([
+                json.dumps(i)
+                for i in body['custom_stopping_strings']
+            ])
 
         return prompt, generate_params
 
