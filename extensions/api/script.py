@@ -3,7 +3,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from threading import Thread
 
 from modules import shared
-from modules.text_generation import encode, generate_reply
+from modules.text_generation import encode, generate_reply, stop_everything_event
 
 params = {
     'port': 5000,
@@ -111,6 +111,15 @@ class Handler(BaseHTTPRequestHandler):
                 strip_length += len(answer)
                 self.wfile.write(answer.encode('utf-8'))
                 self.wfile.flush()
+
+        elif self.path == '/api/v1/stop':
+            stop_everything_event()
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Headers', '*')
+            self.end_headers()
+            self.wfile.write(b'{"stop": "ok"}')
 
         elif self.path == '/api/v1/token-count':
             # Not compatible with KoboldAI api
